@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Akuarium Pintar Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Reset dan font */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f4f8;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 24px;
+      color: #004a99;
+    }
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .card h2 {
+      margin-bottom: 16px;
+      color: #004a99;
+    }
+    .status-on { color: #28a745; font-weight: bold; }
+    .status-off { color: #dc3545; font-weight: bold; }
+    .card form {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .card label {
+      font-weight: 500;
+    }
+    .card input {
+      width: 60px;
+      padding: 6px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      text-align: center;
+    }
+    .card button {
+      padding: 6px 12px;
+      border: none;
+      background: #004a99;
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .card button:hover {
+      background: #003366;
+    }
+    #saveMsg {
+      color: #28a745;
+      font-size: 0.9em;
+      margin-top: 4px;
+    }
+    /* Grafik */
+    .chart-container {
+      position: relative;
+      max-width: 600px;
+      margin: 0 auto;
+      height: 200px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>🔍 Akuarium Pintar</h1>
+
+    <div class="card">
+      <h2>Suhu Terkini</h2>
+      <p style="font-size: 2.5em;"><span id="currentTemp">27.5</span> °C</p>
+    </div>
+
+    <div class="card">
+      <h2>Status Kipas</h2>
+      <p id="fanStatus" class="status-on">ON</p>
+    </div>
+
+    <div class="card">
+      <h2>Pengaturan Ambang</h2>
+      <form id="thresholdForm">
+        <label for="tmin">Tmin (°C):</label>
+        <input type="number" id="tmin" value="26" min="0" max="50">
+        <label for="tmax">Tmax (°C):</label>
+        <input type="number" id="tmax" value="28" min="0" max="50">
+        <button type="submit">Simpan</button>
+      </form>
+      <p id="saveMsg" style="display: none;">Ambang batas disimpan.</p>
+    </div>
+
+    <div class="card">
+      <h2>Grafik Histori Suhu (24 jam)</h2>
+      <div class="chart-container">
+        <canvas id="tempChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Data dummy untuk grafik 24 jam terakhir
+    const labels = Array.from({length: 12}, (_, i) => `${i*2}h`);
+    const temps  = [25,26,27,27.5,28,27.8,27,26.5,26,25.5,26,27];
+
+    const ctx = document.getElementById('tempChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Suhu (°C)',
+          data: temps,
+          fill: false,
+          borderColor: '#004a99',
+          tension: 0.3,
+          pointRadius: 3
+        }]
+      },
+      options: {
+        scales: {
+          y: { suggestedMin: 24, suggestedMax: 30 }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => `${ctx.parsed.y}°C` } }
+        },
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+
+    // Simulasi simpan threshold
+    document.getElementById('thresholdForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const msg = document.getElementById('saveMsg');
+      msg.style.display = 'block';
+      setTimeout(() => msg.style.display = 'none', 2000);
+    });
+  </script>
+
+</body>
+</html>
